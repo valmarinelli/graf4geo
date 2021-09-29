@@ -16,7 +16,7 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 	GRANT pg_read_server_files TO grafana;
 	ALTER ROLE grafana SET PASSWORD 'grafana';
 	\q
-
+	'''
 2. Creare dentro il DB grafana la tabella (table) *data*, attraverso i comandi listati in table.sql:
 	'sudo -u grafana psql -f table.sql'
 3. Ingestione iniziale dei dati da sorgente CSV nella tabella *data*, sempre con utente grafana:
