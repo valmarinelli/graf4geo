@@ -17,7 +17,7 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 	ALTER ROLE grafana SET PASSWORD 'grafana';
 	\q
 	```
-2. Creare dentro il DB grafana la tabella (table) *data*, attraverso i comandi listati in table.sql:\
+2. Creare dentro il DB grafana la tabella (table) *data*, attraverso i comandi listati in table.sql:
 
 	`sudo -u grafana psql -f table.sql`
 
@@ -40,4 +40,17 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 
 	2. Aggiungere una riga al file pg_hba.conf:
 
-	    `host  all  all 0.0.0.0/0 md5`
+	   `host    all             all             0.0.0.0/0               password`
+
+
+## Temporaneo: comandi per fare l'UPSERT sulla tabella *data*
+- Insert new ingested data into temporary table *__data*
+
+`COPY __data FROM 'ingested.csv' DELIMITER ',' CSV HEADER;`
+- Resolve conflicts on timestamp simply skipping data just into the DB
+
+`INSERT INTO data (SELECT * FROM __data) ON CONFLICT (Time) DO NOTHING;`
+- Clear the temporary table
+
+`DELETE FROM __data;`
+
