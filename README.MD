@@ -17,17 +17,27 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 	ALTER ROLE grafana SET PASSWORD 'grafana';
 	\q
 	```
-2. Creare dentro il DB grafana la tabella (table) *data*, attraverso i comandi listati in table.sql:
+2. Creare dentro il DB grafana la tabella (table) *data*, attraverso i comandi listati in table.sql:\
+
 	`sudo -u grafana psql -f table.sql`
+
 3. Ingestione iniziale dei dati da sorgente CSV nella tabella *data*, sempre con utente grafana:
+
 	`sudo -u grafana psql -c "COPY data FROM '/home/valerio/Works/Grafana/all.csv' DELIMITER ',';"`
-4. Controllare che i dati siano correttamente caricati nel DB
+
+4. Controllare che i dati siano correttamente caricati nel DB:
+
 	`sudo -u grafana psql -c "SELECT * FROM data;"`
 
 4. Per connettersi al DB PostGres da remoto:
 	1. Modificare il file postgresql.conf sostituendo alla riga:
+
 	   ` #listen_addresses='localhost'`
+
 	   la riga:
+
 	   `listen_addresses='*'`
+
 	2. Aggiungere una riga al file pg_hba.conf:
+
 	    `host  all  all 0.0.0.0/0 md5`
