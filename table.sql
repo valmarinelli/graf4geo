@@ -1,14 +1,14 @@
 CREATE TABLE data(
 	Time VARCHAR(255) not null,
-	Sol_V DOUBLE PRECISION not null,
-	Sol_I DOUBLE PRECISION not null,
-	Bat_V DOUBLE PRECISION not null,
-	Chg_I DOUBLE PRECISION not null,
-	Load_V DOUBLE PRECISION not null,
-	Load_I DOUBLE PRECISION not null,
-	Load_W DOUBLE PRECISION not null,
-	Bat_T DOUBLE PRECISION not null,
-	Bat_Chg DOUBLE PRECISION not null,
+	Sol_V FLOAT not null,
+	Sol_I FLOAT not null,
+	Bat_V FLOAT not null,
+	Chg_I FLOAT not null,
+	Load_V FLOAT not null,
+	Load_I FLOAT not null,
+	Load_W FLOAT not null,
+	Bat_T FLOAT not null,
+	Bat_Chg FLOAT not null,
 	primary key(Time)
 );
 

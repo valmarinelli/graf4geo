@@ -1,19 +1,36 @@
 #! /usr/bin/env python3
+'''
+Python 3 script that manages the data insertion into the PostgreSQL DB
+'''
 import os
+import csv
+import time
 import psycopg2 # Python module for PostgreSQL
 from configparser import ConfigParser
+from time import sleep, localtime, strftime
 
-datapath = paramreader(section='datapath')
+## MAIN ##
 
 def main():
     
+    Date = strftime("%Y-%m-%d", localtime())
+    # Get the absolute path where logs reside (LOCAL ARCHIVE)
+    datapath = paramreader(section='datapath')['path']
     # Read DB parameters
     dbconfig = paramreader()
     # List CSV files
     csv_list = sorted( [ f for f in os.listdir(datapath) if f.endswith('.csv') ] )
     
     for FILE in csv_list:
-        print(FILE)
+        print('Working on ' + FILE)
+        with open(datapath + FILE, 'r') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',', dialect='unix')
+            for row in reader:
+                row_all = next(reader) # Read line after line, till the end of file
+                # Converting Date&Time to UNIX timestamp (epoch)
+                T = time.mktime(time.strptime(row[0],'%Y-%m-%d %H:%M:%S'))
+                
+        
         # leggere riga per riga i CSV e poi fare l'"INSERT ... ON CONFLICT ..."
     
     
@@ -23,7 +40,7 @@ def paramreader(filename='database.ini', section='postgresql'):
     parser = ConfigParser()
     # read config file
     parser.read(filename)
-    # get section, default to datapah
+    # get section, default to datapath
     result = {}
     if parser.has_section(section):
         params = parser.items(section)

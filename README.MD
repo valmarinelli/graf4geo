@@ -42,15 +42,27 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 
 	   `host    all             all             0.0.0.0/0               password`
 
+## PostgreSQL come fonte dei dati su Grafana
+
+- Aggiungere Data Source di tipo PostgreSQL, dove i parametri sono:
+    - Host: *IP:porta*  nel caso di istanza Grafana su docker, l'IP è del tipo `172.17.0.1`. La porta standard è la 5432 per il PostgreSQL
+    - Database: *grafana* o altro nome
+    - Immettere _user_ e _password_ dell'utente che accede alla specifica istanza DB
+    - TLS/SSL Mode: nel caso il DB sia locale, scegliere `disable` tra le opzioni
+
+Sulla query, se si ha come formato della data una stringa del genere: `2021-09-06 11:55:37` allora bisogna usare la conversione a _UNIX TIMESTAMP_:
+
+~~`SELECT Extract(epoch From time::TIMESTAMP);`~~ 
+`SELECT to_timestamp(time,'YYYY-MM-DD HH24:MI:SS') as "time" ...`
 
 ## Temporaneo: comandi per fare l'UPSERT sulla tabella *data*
 - Insert new ingested data into temporary table *__data*
 
-`COPY __data FROM 'ingested.csv' DELIMITER ',' CSV HEADER;`
+	`COPY __data FROM 'ingested.csv' DELIMITER ',' CSV HEADER;`
 - Resolve conflicts on timestamp simply skipping data just into the DB
 
-`INSERT INTO data (SELECT * FROM __data) ON CONFLICT (Time) DO NOTHING;`
+	`INSERT INTO data (SELECT * FROM __data) ON CONFLICT (Time) DO NOTHING;`
 - Clear the temporary table
 
-`DELETE FROM __data;`
+	`DELETE FROM __data;`
 
