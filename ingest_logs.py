@@ -28,7 +28,7 @@ def main():
             for row in reader:
                 row_all = next(reader) # Read line after line, till the end of file
                 # Converting Date&Time to UNIX timestamp (epoch)
-                T = time.mktime(time.strptime(row[0],'%Y-%m-%d %H:%M:%S'))
+                # T = time.mktime(time.strptime(row[0],'%Y-%m-%d %H:%M:%S'))
                 
         
         # leggere riga per riga i CSV e poi fare l'"INSERT ... ON CONFLICT ..."

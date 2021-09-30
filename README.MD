@@ -52,8 +52,13 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 
 Sulla query, se si ha come formato della data una stringa del genere: `2021-09-06 11:55:37` allora bisogna usare la conversione a _UNIX TIMESTAMP_:
 
-~~`SELECT Extract(epoch From time::TIMESTAMP);`~~ 
+`SELECT Extract(epoch From time::TIMESTAMP);`
+
+Oppure:
+
 `SELECT to_timestamp(time,'YYYY-MM-DD HH24:MI:SS') as "time" ...`
+
+Inoltre, assicurarsi che nella quey **non** ci sia la stringa **`"time" as metrics`** alrimenti Grafana tratta ogni singolo valore di _timestamp_ come un singolo punto di coordinate (t,y)
 
 ## Temporaneo: comandi per fare l'UPSERT sulla tabella *data*
 - Insert new ingested data into temporary table *__data*
