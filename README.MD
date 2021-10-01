@@ -64,10 +64,17 @@ Inoltre, assicurarsi che nella quey **non** ci sia la stringa **`"time" as metri
 - Insert new ingested data into temporary table *__data*
 
 	`COPY __data FROM 'ingested.csv' DELIMITER ',' CSV HEADER;`
+	
 - Resolve conflicts on timestamp simply skipping data just into the DB
 
 	`INSERT INTO data (SELECT * FROM __data) ON CONFLICT (Time) DO NOTHING;`
+	
 - Clear the temporary table
 
 	`DELETE FROM __data;`
 
+## Temporaneo: sostituire valori di misura mancante con 'NaN'
+
+Individuate le colonne dove sono presenti valori non validi (es. 9999), per sostituirvi invece il valore 'NaN' si fa in un solo passaggio, colonna per colonna:
+
+`UPDATE data SET bat_chg = 'NaN' WHERE bat_chg = 9999;`
