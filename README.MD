@@ -14,7 +14,7 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 	logout
 	sudo -u postgres psql
 	GRANT pg_read_server_files TO grafana;
-	ALTER ROLE grafana SET PASSWORD 'grafana';
+	ALTER ROLE grafana WITH PASSWORD 'grafana';
 	\q
 	```
 2. Creare dentro il DB grafana la tabella (table) *data*, attraverso i comandi listati in table.sql:
@@ -58,7 +58,7 @@ Oppure:
 
 `SELECT to_timestamp(time,'YYYY-MM-DD HH24:MI:SS') as "time" ...`
 
-Inoltre, assicurarsi che nella quey **non** ci sia la stringa **`"time" as metrics`** alrimenti Grafana tratta ogni singolo valore di _timestamp_ come un singolo punto di coordinate (t,y)
+Inoltre, assicurarsi che nella quey **non** ci sia la stringa **`"time" as metrics`** altrimenti Grafana tratta ogni singolo valore di _timestamp_ come un singolo punto di coordinate (t,y)
 
 ## Temporaneo: comandi per fare l'UPSERT sulla tabella *data*
 - Insert new ingested data into temporary table *__data*
