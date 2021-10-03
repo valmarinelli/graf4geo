@@ -60,6 +60,10 @@ Oppure:
 
 Inoltre, assicurarsi che nella quey **non** ci sia la stringa **`"time" as metrics`** altrimenti Grafana tratta ogni singolo valore di _timestamp_ come un singolo punto di coordinate (t,y)
 
+## Temporaneo: in caso di problemi di permessi R/W tra utenti
+Nel caso in cui da PSQL non si riesca a fare il COPY dei dati da CSV per problemi di accesso in lettura sulla cartella corrente, copiare i dati sulla **/tmp**, sulla quale hanno accesso tutti gli utenti indifferentemente
+
+
 ## Temporaneo: comandi per fare l'UPSERT sulla tabella *data*
 - Insert new ingested data into temporary table *__data*
 
