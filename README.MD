@@ -20,6 +20,13 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 2. Creare dentro il DB grafana la tabella (table) *data*, attraverso i comandi listati in table.sql:
 
 	`sudo -u grafana psql -f table.sql`
+	
+   Nota: se questo comando restituisce errore, è perché bisogna modificare le opzioni ACL della cartella utente:
+
+	`sudo setfacl -m g::rwx /home/grafana`
+
+   Corrispondentemente, aggiungere l'utente *grafana* al gruppo dell'utente corrente (o gruppo _users_)
+
 
 3. Ingestione iniziale dei dati da sorgente CSV nella tabella *data*, sempre con utente grafana:
 
@@ -41,6 +48,27 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 	2. Aggiungere una riga al file pg_hba.conf:
 
 	   `host    all             all             0.0.0.0/0               password`
+
+5. Su CentOS invece sul file ph_hba.conf vanno sostituite tutte le voci *ident* con *md5*:
+```
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# Local admninistrative login by Unix domain socket
+local   all             postgres                                peer
+# "local" is for Unix domain socket connections only
+local   all             all                                     peer
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            md5
+# IPv6 local connections:
+host    all             all             ::1/128                 md5
+# Allow replication connections from localhost, by a user with the
+# replication privilege.
+local   replication     postgres                                peer
+host    replication     postgres        127.0.0.1/32            md5
+host    replication     postgres        ::1/128                 md5
+# Let local users to connect from all networks using unencrypted password
+host    all             all             0.0.0.0/0               password
+```
 
 ## PostgreSQL come fonte dei dati su Grafana
 
