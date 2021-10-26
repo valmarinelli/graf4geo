@@ -3,7 +3,7 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 
 ## Comandi per la configurazione del DB Postgres
 
-1. Creare l'utente *grafana* sia sul DB che come utente di sistema:
+1. Creare l'utente *grafana* (o timeseries, in caso installazione da pacchetti) sia sul DB che come utente di sistema:
 	```
 	sudo -iu postgres
 	createuser --interactive (creare utente grafana)
@@ -20,6 +20,11 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 2. Creare dentro il DB grafana la tabella (table) *data*, attraverso i comandi listati in table.sql:
 
 	`sudo -u grafana psql -f table.sql`
+  
+	Se ci sono problemi di accesso dell'utente grafana (timeseries) sulla cartella dell'utente attuale, e' un problema
+	di ACL, che si risolve dando il comando:
+	
+	`sudo setfacl -m g:{gruppo utenti}:rwx ./`
 
 3. Ingestione iniziale dei dati da sorgente CSV nella tabella *data*, sempre con utente grafana:
 
@@ -58,7 +63,15 @@ Oppure:
 
 `SELECT to_timestamp(time,'YYYY-MM-DD HH24:MI:SS') as "time" ...`
 
-Inoltre, assicurarsi che nella quey **non** ci sia la stringa **`"time" as metrics`** altrimenti Grafana tratta ogni singolo valore di _timestamp_ come un singolo punto di coordinate (t,y)
+Inoltre, assicurarsi che nella quey **non** ci sia la stringa **`"time" as metrics`** altrimenti Grafana tratta ogni singolo valore di _timestamp_ come un singolo punto di coordinate (t,y).
+Come esempio pratico, questa query estrae la colonna *bat_V* dalla tabella _data_:
+```
+SELECT
+  extract(epoch FROM time::TIMESTAMP) as "time",
+  bat_V
+FROM data
+ORDER BY 1
+```
 
 ## Temporaneo: in caso di problemi di permessi R/W tra utenti
 Nel caso in cui da PSQL non si riesca a fare il COPY dei dati da CSV per problemi di accesso in lettura sulla cartella corrente, copiare i dati sulla **/tmp**, sulla quale hanno accesso tutti gli utenti indifferentemente
