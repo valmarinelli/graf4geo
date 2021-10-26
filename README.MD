@@ -17,32 +17,28 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 	ALTER ROLE grafana WITH PASSWORD 'grafana';
 	\q
 	```
+
 2. Creare dentro il DB grafana la tabella (table) *data*, attraverso i comandi listati in table.sql:
 
 	`sudo -u grafana psql -f table.sql`
-<<<<<<< HEAD
   
-	Se ci sono problemi di accesso dell'utente grafana (timeseries) sulla cartella dell'utente attuale, e' un problema
+	Se ci sono problemi di accesso dell'utente *grafana* (o timeseries) sulla cartella dell'utente attuale, e' un problema
 	di ACL, che si risolve dando il comando:
 	
-	`sudo setfacl -m g:{gruppo utenti}:rwx ./`
-=======
-	
-   Nota: se questo comando restituisce errore, è perché bisogna modificare le opzioni ACL della cartella utente:
-
 	`sudo setfacl -m g::rwx /home/grafana`
+	
+        Corrispondentemente, aggiungere l'utente *grafana* al gruppo dell'utente corrente (o gruppo _users_)
 
-   Corrispondentemente, aggiungere l'utente *grafana* al gruppo dell'utente corrente (o gruppo _users_)
-
->>>>>>> 3136b6844c58fd44bde81ffebf2730ea53a41813
 
 3. Ingestione iniziale dei dati da sorgente CSV nella tabella *data*, sempre con utente grafana:
 
 	`sudo -u grafana psql -c "COPY data FROM '/home/valerio/Works/Grafana/all.csv' DELIMITER ',';"`
 
+
 4. Controllare che i dati siano correttamente caricati nel DB:
 
 	`sudo -u grafana psql -c "SELECT * FROM data;"`
+
 
 4. Per connettersi al DB PostGres da remoto:
 	1. Modificare il file postgresql.conf sostituendo alla riga:
@@ -94,7 +90,16 @@ Oppure:
 
 `SELECT to_timestamp(time,'YYYY-MM-DD HH24:MI:SS') as "time" ...`
 
-Inoltre, assicurarsi che nella quey **non** ci sia la stringa **`"time" as metrics`** altrimenti Grafana tratta ogni singolo valore di _timestamp_ come un singolo punto di coordinate (t,y)
+Inoltre, assicurarsi che nella query **non** ci sia la stringa **`"time" as metrics`** altrimenti Grafana tratta ogni singolo valore di _timestamp_ come un singolo punto di coordinate (t,y).
+Come esempio pratico, questa query estrae la colonna *bat_V* dalla tabella _data_ usando il timestamp in formato UNIX:
+```
+SELECT
+  extract(epoch FROM time::TIMESTAMP) as "time",
+  bat_V
+FROM data
+ORDER BY 1
+```
+
 
 ## Temporaneo: in caso di problemi di permessi R/W tra utenti
 Nel caso in cui da PSQL non si riesca a fare il COPY dei dati da CSV per problemi di accesso in lettura sulla cartella corrente, copiare i dati sulla **/tmp**, sulla quale hanno accesso tutti gli utenti indifferentemente
