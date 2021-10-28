@@ -4,7 +4,7 @@ Python 3 script that manages the data insertion into the PostgreSQL DB
 '''
 import os
 import csv
-# import time
+from time import strftime, strptime, mktime
 import psycopg2 # Python module for PostgreSQL
 from configparser import ConfigParser
 
@@ -35,7 +35,7 @@ def main():
                 for row in reader:
                     row_all = next(reader) # Read line after line, till the end of file
                     # Convert Date&Time to UNIX timestamp (epoch)
-                    # T = time.mktime(time.strptime(row[0],'%Y-%m-%d %H:%M:%S'))
+                    # T = mktime(strptime(row[0],'%Y-%m-%d %H:%M:%S'))
                     cur.execute(\
                         'INSERT INTO ' + table + 'VALUES (' + row_all + ') '\
                             'ON CONFLICT (time) DO NOTHING;')
