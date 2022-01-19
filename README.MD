@@ -1,43 +1,60 @@
 # graf4geo
 Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine in ambito geofisico, geologico e ambientale
 
-## Comandi per la configurazione del DB Postgres
+## Le premesse: installazione di PostgreSQL (RHEL e derivate)
 
-1. Creare l'utente *grafana* (o timeseries, in caso installazione da pacchetti) sia sul DB che come utente di sistema:
+1. Installare sia il client che il server:
+
+`$ sudo yum install -y postgresql postgresql-contrib postgresql-server`
+
+2. Inizializzare il DB, creando un nuovo cluster:
+
+`$ sudo postgresql-setup initdb`
+
+3. Abilitare il server PostgreSQL all'avvio automatico:
+
+`$ sudo systemctl enable postgresql.service`
+
+4. Avviare il server PostgreSQL:
+
+`$ sudo systemctl start postgresql.service`
+
+
+## Configurazione del DB Postgres
+
+1. Creare l'utente *grafana* (o dbreader, in caso installazione da pacchetti) sia sul DB che come utente di sistema:
 	```
-	sudo -iu postgres
-	createuser --interactive (creare utente grafana)
-	logout
-	sudo adduser grafana
-	sudo -iu postgres
-	createdb grafana
-	logout
-	sudo -u postgres psql
-	GRANT pg_read_server_files TO grafana;
-	ALTER ROLE grafana WITH PASSWORD 'grafana';
-	\q
+	$ sudo -iu postgres
+	$ createuser --interactive (creare utente non amministrativo dbreader)
+        $ createdb dbreader (creare DB omonimo all'utente appena creato)
+	$ logout
+	$ sudo adduser dbreader
+	$ sudo -u postgres psql
+	> GRANT pg_read_server_files TO dbreader;
+	> ALTER ROLE dbreader WITH PASSWORD 'dbreader';
+	> \q
 	```
 
 2. Creare dentro il DB grafana la tabella (table) *data*, attraverso i comandi listati in table.sql:
 
-	`sudo -u grafana psql -f table.sql`
+	`$ sudo -u grafana psql -f table.sql`
   
 	Se ci sono problemi di accesso dell'utente *grafana* (o timeseries) sulla cartella dell'utente attuale, e' un problema
 	di ACL, che si risolve dando il comando:
 	
-	`sudo setfacl -m g::rwx /home/grafana`
+	`$ sudo setfacl -m g::rwx /home/grafana`
 	
         Corrispondentemente, aggiungere l'utente *grafana* al gruppo dell'utente corrente (o gruppo _users_)
 
 
 3. Ingestione iniziale dei dati da sorgente CSV nella tabella *data*, sempre con utente grafana:
 
-	`sudo -u grafana psql -c "COPY data FROM '/home/valerio/Works/Grafana/all.csv' DELIMITER ',';"`
+	`$ sudo -u grafana psql -c "COPY data FROM '/home/valerio/Works/Grafana/all.csv' DELIMITER ',';"`
 
 
 4. Controllare che i dati siano correttamente caricati nel DB:
 
-	`sudo -u grafana psql -c "SELECT * FROM data;"`
+	`$ sudo -u grafana psql -c "SELECT * FROM data;"`
 
 
 4. Per connettersi al DB PostGres da remoto:
@@ -84,11 +101,11 @@ host    all             all             0.0.0.0/0               password
 
 Sulla query, se si ha come formato della data una stringa del genere: `2021-09-06 11:55:37` allora bisogna usare la conversione a _UNIX TIMESTAMP_:
 
-`SELECT Extract(epoch From time::TIMESTAMP);`
+`> SELECT Extract(epoch From time::TIMESTAMP);`
 
 Oppure:
 
-`SELECT to_timestamp(time,'YYYY-MM-DD HH24:MI:SS') as "time" ...`
+`> SELECT to_timestamp(time,'YYYY-MM-DD HH24:MI:SS') as "time" ...`
 
 Inoltre, assicurarsi che nella query **non** ci sia la stringa **`"time" as metrics`** altrimenti Grafana tratta ogni singolo valore di _timestamp_ come un singolo punto di coordinate (t,y).
 Come esempio pratico, questa query estrae la colonna *bat_V* dalla tabella _data_ usando il timestamp in formato UNIX:
@@ -99,6 +116,30 @@ SELECT
 FROM data
 ORDER BY 1
 ```
+
+## Configurazione di MariaDB/MySQL
+
+La situazione di partenza è una installazione MariaDB con già configurata la password per l'amministratore (_root_) del server.
+
+1. Entrare nel DBMS, creare il database (in questo caso chiamato **solarlogger**) e l'utente che ne avrà accesso (**grafana**, con password identica):
+    ```
+    $ sudo mysql -u root -p
+    > SHOW DATABASES; # Mostra i DB presenti attualmente
+    > CREATE DATABASE solarlogger;
+    > CREATE USER 'grafana'@'localhost' IDENTIFIED BY 'grafana';
+    > GRANT ALL PRIVILEGES ON solarlogger TO 'grafana'@'localhost';
+    > FLUSH PRIVILEGES;
+    > SHOW DATABASES;
+    ```
+2. Creare la tabella "data" dentro al DB _solarlogger_, dove si sono definite nel file **table.sql** la tipologia delle colonne:
+    ```
+    $ mysql -u grafana -D solarlogger -p < table.sql
+    ```
+3. Importare     
+    > LOAD DATA LOCAL INFILE "/home/valerio/logs/base_all.csv" INTO TABLE solarlogger.data FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
+    
+
+
 
 
 ## Temporaneo: in caso di problemi di permessi R/W tra utenti

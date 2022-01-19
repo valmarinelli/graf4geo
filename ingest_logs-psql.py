@@ -4,7 +4,7 @@ Python 3 script that manages the data insertion into the PostgreSQL DB
 '''
 import os
 import csv
-from time import strftime, strptime, mktime
+from time import strftime, strptime, mktime, localtime
 import psycopg2 # Python module for PostgreSQL
 from configparser import ConfigParser
 
@@ -23,28 +23,28 @@ def main():
     
     for FILE in csv_list:
         print('Working on ' + FILE)
-        conn = None
-        try:
-            # Connect to the DB instance
-            conn = psycopg2.connect(**dbconfig)
-            # create a cursor
-            cur = conn.cursor()
+        #conn = None
+        #try:
+            ## Connect to the DB instance
+            #conn = psycopg2.connect(**dbconfig)
+            ## create a cursor
+            #cur = conn.cursor()
             
-            with open(datapath + FILE, 'r') as csvfile:
-                reader = csv.reader(csvfile, delimiter=',', dialect='unix')
-                for row in reader:
-                    row_all = next(reader) # Read line after line, till the end of file
-                    # Convert Date&Time to UNIX timestamp (epoch)
-                    # T = mktime(strptime(row[0],'%Y-%m-%d %H:%M:%S'))
-                    cur.execute(\
-                        'INSERT INTO ' + table + 'VALUES (' + row_all + ') '\
-                            'ON CONFLICT (time) DO NOTHING;')
-                    cur.close()
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if conn is not None:
-                conn.close()
+            #with open(datapath + FILE, 'r') as csvfile:
+                #reader = csv.reader(csvfile, delimiter=',', dialect='unix')
+                #for row in reader:
+                    #row_all = next(reader) # Read line after line, till the end of file
+                    ## Convert Date&Time to UNIX timestamp (epoch)
+                    ## T = mktime(strptime(row[0],'%Y-%m-%d %H:%M:%S'))
+                    #cur.execute(\
+                        #'INSERT INTO ' + table + 'VALUES (' + row_all + ') '\
+                            #'ON CONFLICT (time) DO NOTHING;')
+                    #cur.close()
+        #except (Exception, psycopg2.DatabaseError) as error:
+            #print(error)
+        #finally:
+            #if conn is not None:
+                #conn.close()
     
     
 def paramreader(filename='database.ini', section='postgresql'):

@@ -1,0 +1,5 @@
+eyJrIjoiVDFqMDR1MG1vdUhrNDVITDRwaVJ0RnY3RjFobXdXT1oiLCJuIjoiVGVzdF92aWV3ZXIiLCJpZCI6MX0=
+
+You can authenticate a request using the Authorization HTTP header, example:
+
+curl -H "Authorization: Bearer eyJrIjoiVDFqMDR1MG1vdUhrNDVITDRwaVJ0RnY3RjFobXdXT1oiLCJuIjoiVGVzdF92aWV3ZXIiLCJpZCI6MX0=" http://localhost:3000/api/dashboards/home
