@@ -1,6 +1,7 @@
 # graf4geo
 Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine in ambito geofisico, geologico e ambientale
 
+<<<<<<< HEAD
 ## Le premesse: installazione di PostgreSQL (RHEL e derivate)
 
 1. Installare sia il client che il server:
@@ -34,6 +35,23 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 	> ALTER ROLE dbreader WITH PASSWORD 'dbreader';
 	> \q
 	```
+=======
+## Configurazione del DB Postgres
+
+1. Creare l'utente *grafana* (o timeseries, in caso installazione da pacchetti) sia sul DB che come utente di sistema:
+
+        $ sudo -iu postgres
+        $ createuser --interactive (creare utente grafana)
+        $ logout
+        $ sudo adduser grafana
+        $ sudo -iu postgres
+        $ createdb grafana
+        $ logout
+        $ sudo -u postgres psql
+        > GRANT pg_read_server_files TO grafana;
+        > ALTER ROLE grafana WITH PASSWORD 'grafana';
+        > \q
+>>>>>>> dcda6ef8ebefe40df941f25d0756aac83a3065b5
 
 2. Creare dentro il DB grafana la tabella (table) *data*, attraverso i comandi listati in table.sql:
 
@@ -44,7 +62,7 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 	
 	`$ sudo setfacl -m g::rwx /home/grafana`
 	
-        Corrispondentemente, aggiungere l'utente *grafana* al gruppo dell'utente corrente (o gruppo _users_)
+    Corrispondentemente, aggiungere l'utente *grafana* al gruppo dell'utente corrente (o gruppo _users_)
 
 
 3. Ingestione iniziale dei dati da sorgente CSV nella tabella *data*, sempre con utente grafana:
@@ -71,25 +89,24 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 	   `host    all             all             0.0.0.0/0               password`
 
 5. Su CentOS invece sul file ph_hba.conf vanno sostituite tutte le voci *ident* con *md5*:
-```
-# TYPE  DATABASE        USER            ADDRESS                 METHOD
 
-# Local admninistrative login by Unix domain socket
-local   all             postgres                                peer
-# "local" is for Unix domain socket connections only
-local   all             all                                     peer
-# IPv4 local connections:
-host    all             all             127.0.0.1/32            md5
-# IPv6 local connections:
-host    all             all             ::1/128                 md5
-# Allow replication connections from localhost, by a user with the
-# replication privilege.
-local   replication     postgres                                peer
-host    replication     postgres        127.0.0.1/32            md5
-host    replication     postgres        ::1/128                 md5
-# Let local users to connect from all networks using unencrypted password
-host    all             all             0.0.0.0/0               password
-```
+        # TYPE  DATABASE        USER            ADDRESS                 METHOD
+        # Local admninistrative login by Unix domain socket
+        local   all             postgres                                peer
+        # "local" is for Unix domain socket connections only
+        local   all             all                                     peer
+        # IPv4 local connections:
+        host    all             all             127.0.0.1/32            md5
+        # IPv6 local connections:
+        host    all             all             ::1/128                 md5
+        # Allow replication connections from localhost, by a user with the
+        # replication privilege.
+        local   replication     postgres                                peer
+        host    replication     postgres        127.0.0.1/32            md5
+        host    replication     postgres        ::1/128                 md5
+        # Let local users to connect from all networks using unencrypted password
+        host    all             all             0.0.0.0/0               password
+
 
 ## PostgreSQL come fonte dei dati su Grafana
 
@@ -109,13 +126,36 @@ Oppure:
 
 Inoltre, assicurarsi che nella query **non** ci sia la stringa **`"time" as metrics`** altrimenti Grafana tratta ogni singolo valore di _timestamp_ come un singolo punto di coordinate (t,y).
 Come esempio pratico, questa query estrae la colonna *bat_V* dalla tabella _data_ usando il timestamp in formato UNIX:
-```
-SELECT
-  extract(epoch FROM time::TIMESTAMP) as "time",
-  bat_V
-FROM data
-ORDER BY 1
-```
+
+        SELECT
+        extract(epoch FROM time::TIMESTAMP) as "time",
+        bat_V
+        FROM data
+        ORDER BY 1
+
+## Configurazione di MariaDB/MySQL
+
+La situazione di partenza è una installazione MariaDB con già configurata la password per l'amministratore (_root_) del server.
+
+1. Entrare nel DBMS, creare il database (in questo caso chiamato **solarlogger**) e l'utente che ne avrà accesso (**grafana**, con password identica):
+
+        $ sudo mysql -u root -p
+        > SHOW DATABASES; # Mostra i DB presenti attualmente
+        > CREATE DATABASE solarlogger;
+        > CREATE USER 'grafana'@'localhost' IDENTIFIED BY 'grafana';
+        > GRANT ALL PRIVILEGES ON solarlogger TO 'grafana'@'localhost';
+        > FLUSH PRIVILEGES;
+        > SHOW DATABASES;
+
+2. Creare la tabella "data" dentro al DB _solarlogger_, dove si sono definite nel file **table.sql** la tipologia delle colonne:
+
+    `$ mysql -u grafana -D solarlogger -p < table.sql`
+
+3. Importare i log:
+
+    `> LOAD DATA LOCAL INFILE "/home/valerio/logs/base_all.csv" INTO TABLE solarlogger.data FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';`
+    
+
 
 ## Configurazione di MariaDB/MySQL
 
@@ -142,11 +182,11 @@ La situazione di partenza è una installazione MariaDB con già configurata la p
 
 
 
-## Temporaneo: in caso di problemi di permessi R/W tra utenti
+### Extra: in caso di problemi di permessi R/W tra utenti
 Nel caso in cui da PSQL non si riesca a fare il COPY dei dati da CSV per problemi di accesso in lettura sulla cartella corrente, copiare i dati sulla **/tmp**, sulla quale hanno accesso tutti gli utenti indifferentemente
 
 
-## Temporaneo: comandi per fare l'UPSERT sulla tabella *data*
+### Extra: comandi per fare l'UPSERT sulla tabella *data*
 - Insert new ingested data into temporary table *__data*
 
 	`COPY __data FROM 'ingested.csv' DELIMITER ',' CSV HEADER;`
@@ -159,7 +199,7 @@ Nel caso in cui da PSQL non si riesca a fare il COPY dei dati da CSV per problem
 
 	`DELETE FROM __data;`
 
-## Temporaneo: sostituire valori di misura mancante con 'NaN'
+### Extra: sostituire valori di misura mancante con 'NaN'
 
 Individuate le colonne dove sono presenti valori non validi (es. 9999), per sostituirvi invece il valore 'NaN' si fa in un solo passaggio, colonna per colonna:
 
