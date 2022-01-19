@@ -1,7 +1,6 @@
 # graf4geo
 Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine in ambito geofisico, geologico e ambientale
 
-<<<<<<< HEAD
 ## Le premesse: installazione di PostgreSQL (RHEL e derivate)
 
 1. Installare sia il client che il server:
@@ -35,23 +34,6 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 	> ALTER ROLE dbreader WITH PASSWORD 'dbreader';
 	> \q
 	```
-=======
-## Configurazione del DB Postgres
-
-1. Creare l'utente *grafana* (o timeseries, in caso installazione da pacchetti) sia sul DB che come utente di sistema:
-
-        $ sudo -iu postgres
-        $ createuser --interactive (creare utente grafana)
-        $ logout
-        $ sudo adduser grafana
-        $ sudo -iu postgres
-        $ createdb grafana
-        $ logout
-        $ sudo -u postgres psql
-        > GRANT pg_read_server_files TO grafana;
-        > ALTER ROLE grafana WITH PASSWORD 'grafana';
-        > \q
->>>>>>> dcda6ef8ebefe40df941f25d0756aac83a3065b5
 
 2. Creare dentro il DB grafana la tabella (table) *data*, attraverso i comandi listati in table.sql:
 
