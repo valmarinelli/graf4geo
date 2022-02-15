@@ -1,9 +1,9 @@
 # graf4geo
-_ITA_
+###_ITA_
 Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine in ambito geofisico, geologico e ambientale.
 Buona parte del codice l'ho scritto grazie a tutto il materiale online, soprattutto StackOverflow/StackExchange.
 
-_ENG_
+###_ENG_
 This is a personal code project aiming on adapting and using Grafana with a PostgreSQL DB for long-term monitoring purposes, especially in geophysical, geological and environmental contexts.
 Most part of the code was written thanks to the vast, outnumbering stuff out there on the web. I cannot cite a particular source, apart from the StackOverflow/StackExchange fora. Thanks to all the good software makers/engineers all there around.
 
