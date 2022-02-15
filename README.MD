@@ -1,5 +1,11 @@
 # graf4geo
-Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine in ambito geofisico, geologico e ambientale
+_ITA_
+Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine in ambito geofisico, geologico e ambientale.
+Buona parte del codice l'ho scritto grazie a tutto il materiale online, soprattutto StackOverflow/StackExchange.
+
+_ENG_
+This is a personal code project aiming on adapting and using Grafana with a PostgreSQL DB for long-term monitoring purposes, especially in geophysical, geological and environmental contexts.
+Most part of the code was written thanks to the vast, outnumbering stuff out there on the web. I cannot cite a particular source, apart from the StackOverflow/StackExchange fora. Thanks to all the good software makers/engineers all there around.
 
 ## Le premesse: installazione di PostgreSQL (RHEL e derivate)
 
@@ -169,8 +175,7 @@ Nel caso in cui da PSQL non si riesca a fare il COPY dei dati da CSV per problem
 
 
 ### Extra: comandi per fare l'UPSERT sulla tabella *data*
-- Insert new ingested data into temporary table *__data*
-
+- Insert new ingested data into temporary table *__data*r
 	`COPY __data FROM 'ingested.csv' DELIMITER ',' CSV HEADER;`
 	
 - Resolve conflicts on timestamp simply skipping data just into the DB
