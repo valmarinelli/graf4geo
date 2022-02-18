@@ -11,6 +11,6 @@ CREATE TABLE data(
 	Dev_T FLOAT not null,
 	Bat_Chg FLOAT not null,
 	Dev_ID VARCHAR(10) not null,
-	primary key(Time)
-);
+	primary key(Time,Dev_ID)
+) PARTITION BY RANGE (Time);
 
