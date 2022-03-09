@@ -12,5 +12,4 @@ CREATE TABLE data(
 	Bat_Chg FLOAT not null,
 	Dev_ID VARCHAR(10) not null,
 	primary key(Time,Dev_ID)
-); --PARTITION BY RANGE (Time);
-
+) PARTITION BY RANGE (Time);

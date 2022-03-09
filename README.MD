@@ -1,5 +1,11 @@
 # graf4geo
-Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine in ambito geofisico, geologico e ambientale
+###_ITA_
+Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine in ambito geofisico, geologico e ambientale.
+Buona parte del codice l'ho scritto grazie a tutto il materiale online, soprattutto StackOverflow/StackExchange.
+
+###_ENG_
+This is a personal code project aiming on adapting and using Grafana with a PostgreSQL DB for long-term monitoring purposes, especially in geophysical, geological and environmental contexts.
+Most part of the code was written thanks to the vast, outnumbering stuff out there on the web. I cannot cite a particular source, apart from the StackOverflow/StackExchange fora. Thanks to all the good software makers/engineers all there around.
 
 ## Le premesse: installazione di PostgreSQL (RHEL e derivate)
 
@@ -22,14 +28,14 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 
 ## Configurazione del DB Postgres
 
-1. Creare l'utente *grafana* (o dbreader, in caso installazione da pacchetti) sia sul DB che come utente di sistema:
+1. Creare l'utente *dreader* sia sul DB che come utente di sistema:
 	```
+	$ sudo adduser dbreader
+	$ sudo passwd dbreader
 	$ sudo -iu postgres
 	$ createuser --interactive (creare utente non amministrativo dbreader)
         $ createdb dbreader (creare DB omonimo all'utente appena creato)
-	$ logout
-	$ sudo adduser dbreader
-	$ sudo -u postgres psql
+	$ psql
 	> GRANT pg_read_server_files TO dbreader;
 	> ALTER ROLE dbreader WITH PASSWORD 'dbreader';
 	> \q
@@ -37,24 +43,24 @@ Progetto personale per usare PostgreSQL+Grafana per monitoraggi a lungo termine 
 
 2. Creare dentro il DB grafana la tabella (table) *data*, attraverso i comandi listati in table.sql:
 
-	`$ sudo -u grafana psql -f table.sql`
+	`$ sudo -u dbreader psql -f table.sql`
   
 	Se ci sono problemi di accesso dell'utente *grafana* (o timeseries) sulla cartella dell'utente attuale, e' un problema
 	di ACL, che si risolve dando il comando:
 	
-	`$ sudo setfacl -m g::rwx /home/grafana`
+	`$ sudo setfacl -m g::rwx /home/dbreader`
 	
-    Corrispondentemente, aggiungere l'utente *grafana* al gruppo dell'utente corrente (o gruppo _users_)
+    Corrispondentemente, aggiungere l'utente *dbreader* al gruppo dell'utente corrente (o gruppo _users_)
 
 
-3. Ingestione iniziale dei dati da sorgente CSV nella tabella *data*, sempre con utente grafana:
+3. Ingestione iniziale dei dati da sorgente CSV nella tabella *data*, sempre con utente dbreader:
 
-	`$ sudo -u grafana psql -c "COPY data FROM '/home/valerio/Works/Grafana/all.csv' DELIMITER ',';"`
+	`$ sudo -u dbreader psql -c "COPY data FROM '/home/valerio/Works/Grafana/all.csv' DELIMITER ',';"`
 
 
 4. Controllare che i dati siano correttamente caricati nel DB:
 
-	`$ sudo -u grafana psql -c "SELECT * FROM data;"`
+	`$ sudo -u dbreader psql -c "SELECT * FROM data;"`
 
 
 4. Per connettersi al DB PostGres da remoto:
@@ -169,8 +175,7 @@ Nel caso in cui da PSQL non si riesca a fare il COPY dei dati da CSV per problem
 
 
 ### Extra: comandi per fare l'UPSERT sulla tabella *data*
-- Insert new ingested data into temporary table *__data*
-
+- Insert new ingested data into temporary table *__data*r
 	`COPY __data FROM 'ingested.csv' DELIMITER ',' CSV HEADER;`
 	
 - Resolve conflicts on timestamp simply skipping data just into the DB
